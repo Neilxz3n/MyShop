@@ -1,0 +1,42 @@
+<h1>Welcome to Our T-Shirt Shop</h1>
+
+<!-- Cart Info -->
+<div class="cart-info">
+  <p><strong>Items in Cart:</strong> {{ cartCount }}</p>
+  <p><strong>Total Price:</strong> ₱{{ totalPrice }}</p>
+</div>
+
+<!-- Category Filter -->
+<label>Filter by Category:</label>
+<select [(ngModel)]="selectedCategory">
+  <option>All</option>
+  <option>Men</option>
+  <option>Women</option>
+  <option>Unisex</option>
+</select>
+
+<div class="products">
+  <div class="product-card" *ngFor="let item of filteredProducts">
+
+    <!-- Product Image -->
+    <img [src]="item.image" alt="product image" width="100%" height="180">
+
+    <h3>{{ item.name }}</h3>
+    <p>Category: {{ item.category }}</p>
+    <p>Price: ₱{{ item.price }}</p>
+
+    <!-- Availability -->
+    <p *ngIf="item.available; else outStock">Available</p>
+    <ng-template #outStock>
+      <p style="color:red;">Out of Stock</p>
+    </ng-template>
+
+    <!-- Button -->
+    <button 
+      (click)="addToCart(item)"
+      [disabled]="!item.available">
+      Add to Cart
+    </button>
+
+  </div>
+</div>
