@@ -1,14 +1,21 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ProductsComponent } from './products/products';
+import { Component } from '@angular/core';
+import { Products } from './products/products';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ProductsComponent],
+  imports: [Products],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('bacoy');
+
+  cartCount = 0;
+  totalPrice = 0;
+
+  updateCart(product: any) {
+    this.cartCount++;
+    this.totalPrice += product.price;
+  }
+
 }

@@ -1,1 +1,12 @@
-<app-products></app-products>
+<div class="container">
+
+  <h1>Welcome to Our T-Shirt Shop</h1>
+
+  <div class="cart-box">
+    <p><strong>Items in Cart:</strong> {{ cartCount }}</p>
+    <p><strong>Total Price:</strong> ₱{{ totalPrice }}</p>
+  </div>
+
+  <app-products (addProduct)="updateCart($event)"></app-products>
+
+</div>

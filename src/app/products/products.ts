@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,40 +9,40 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './products.html',
   styleUrl: './products.css'
 })
-export class ProductsComponent {
+export class Products {
 
-  selectedCategory: string = 'All';
-  cartCount: number = 0;
-  totalPrice: number = 0;
+  @Output() addProduct = new EventEmitter<any>();
+
+  selectedCategory = 'All';
 
   products = [
     {
       name: 'T-Shirt 1',
-      price: 500,
       category: 'Men',
+      price: 500,
       available: true,
-      image: 'assets/t1.jpg'
+      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab'
     },
     {
       name: 'T-Shirt 2',
-      price: 600,
       category: 'Women',
+      price: 600,
       available: true,
-      image: 'assets/t2.jpg'
+      image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c'
     },
     {
       name: 'T-Shirt 3',
-      price: 450,
       category: 'Men',
+      price: 450,
       available: false,
-      image: 'assets/t3.jpg'
+      image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f'
     },
     {
       name: 'T-Shirt 4',
-      price: 700,
       category: 'Unisex',
+      price: 700,
       available: true,
-      image: 'assets/t4.jpg'
+      image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f'
     }
   ];
 
@@ -50,15 +50,14 @@ export class ProductsComponent {
     if (this.selectedCategory === 'All') {
       return this.products;
     }
-    return this.products.filter(product => 
-      product.category === this.selectedCategory
+    return this.products.filter(
+      p => p.category === this.selectedCategory
     );
   }
 
   addToCart(product: any) {
     if (product.available) {
-      this.cartCount++;
-      this.totalPrice += product.price;
+      this.addProduct.emit(product);
       alert(product.name + ' added to cart!');
     }
   }
