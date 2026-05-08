@@ -25,11 +25,12 @@ export const routes: Routes = [
       { path: 'found-items', loadComponent: () => import('./features/found-items/found-items').then(m => m.FoundItemsComponent) },
       { path: 'found-items/report', loadComponent: () => import('./features/found-items/report-found/report-found').then(m => m.ReportFoundComponent) },
       { path: 'claims', loadComponent: () => import('./features/claims/claims').then(m => m.ClaimsComponent) },
-      { path: 'matching', loadComponent: () => import('./features/matching/matching').then(m => m.MatchingComponent) },
-      { path: 'notifications', loadComponent: () => import('./features/notifications/notifications').then(m => m.NotificationsComponent) },
       { path: 'profile', loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent) },
       { path: 'settings', loadComponent: () => import('./features/settings/settings').then(m => m.SettingsComponent) },
-      { path: 'email-templates', loadComponent: () => import('./features/email-templates/email-templates').then(m => m.EmailTemplatesComponent) },
+      // Admin-only routes
+      { path: 'matching', loadComponent: () => import('./features/matching/matching').then(m => m.MatchingComponent), canActivate: [adminGuard] },
+      { path: 'notifications', loadComponent: () => import('./features/notifications/notifications').then(m => m.NotificationsComponent), canActivate: [adminGuard] },
+      { path: 'email-templates', loadComponent: () => import('./features/email-templates/email-templates').then(m => m.EmailTemplatesComponent), canActivate: [adminGuard] },
       { path: 'admin', loadComponent: () => import('./features/admin/admin').then(m => m.AdminComponent), canActivate: [adminGuard] },
     ]
   },

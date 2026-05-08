@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -19,17 +19,24 @@ import { AuthService } from '../../../core/services/auth.service';
         </button>
       </div>
       <nav class="sidebar-nav">
-        <a *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active"
+        <ng-container *ngIf="isAdmin()">
+          <span class="nav-section" *ngIf="!collapsed()">MANAGEMENT</span>
+        </ng-container>
+        <a *ngFor="let item of visibleMenuItems()" [routerLink]="item.route" routerLinkActive="active"
            [routerLinkActiveOptions]="{exact: item.exact || false}" class="nav-item" [title]="item.label">
           <span class="nav-icon">{{item.icon}}</span>
           <span class="nav-label" *ngIf="!collapsed()">{{item.label}}</span>
         </a>
-        <div class="nav-divider" *ngIf="auth.currentUser()?.role === 'admin'"></div>
-        <a *ngIf="auth.currentUser()?.role === 'admin'" routerLink="/admin" routerLinkActive="active"
-           class="nav-item" title="Admin Panel">
-          <span class="nav-icon">⚙️</span>
-          <span class="nav-label" *ngIf="!collapsed()">Admin Panel</span>
-        </a>
+        <ng-container *ngIf="isAdmin()">
+          <div class="nav-divider"></div>
+          <span class="nav-section" *ngIf="!collapsed()">ACCOUNT</span>
+          <a routerLink="/profile" routerLinkActive="active" class="nav-item" title="Profile">
+            <span class="nav-icon">👤</span><span class="nav-label" *ngIf="!collapsed()">Profile</span>
+          </a>
+          <a routerLink="/settings" routerLinkActive="active" class="nav-item" title="Settings">
+            <span class="nav-icon">⚡</span><span class="nav-label" *ngIf="!collapsed()">Settings</span>
+          </a>
+        </ng-container>
       </nav>
       <div class="sidebar-footer" *ngIf="!collapsed()">
         <div class="user-card" *ngIf="auth.currentUser() as user">
@@ -79,6 +86,7 @@ import { AuthService } from '../../../core/services/auth.service';
     .nav-icon { font-size: 1.2rem; min-width: 24px; text-align: center; }
     .nav-label { font-size: .875rem; font-weight: 500; }
     .nav-divider { height: 1px; background: var(--surface-border); margin: 8px 12px; }
+    .nav-section { display: block; padding: 8px 12px 4px; font-size: .65rem; font-weight: 700; letter-spacing: .08em; color: var(--text-tertiary); text-transform: uppercase; }
     .sidebar-footer { padding: 12px; border-top: 1px solid var(--surface-border); }
     .user-card { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius); }
     .user-avatar {
@@ -100,14 +108,27 @@ export class SidebarComponent {
   auth = inject(AuthService);
   collapsed = signal(false);
 
-  menuItems = [
+  isAdmin = computed(() => this.auth.currentUser()?.role === 'admin');
+
+  private userMenuItems = [
+    { icon: '📊', label: 'Dashboard', route: '/dashboard', exact: true },
+    { icon: '🔍', label: 'Lost Items', route: '/lost-items', exact: false },
+    { icon: '📦', label: 'Found Items', route: '/found-items', exact: false },
+    { icon: '📋', label: 'My Claims', route: '/claims', exact: false },
+    { icon: '👤', label: 'Profile', route: '/profile', exact: false },
+    { icon: '⚡', label: 'Settings', route: '/settings', exact: false },
+  ];
+
+  private adminMenuItems = [
     { icon: '📊', label: 'Dashboard', route: '/dashboard', exact: true },
     { icon: '🔍', label: 'Lost Items', route: '/lost-items', exact: false },
     { icon: '📦', label: 'Found Items', route: '/found-items', exact: false },
     { icon: '🔗', label: 'Matching', route: '/matching', exact: false },
-    { icon: '📋', label: 'Claims', route: '/claims', exact: false },
+    { icon: '📋', label: 'All Claims', route: '/claims', exact: false },
     { icon: '🔔', label: 'Notifications', route: '/notifications', exact: false },
-    { icon: '👤', label: 'Profile', route: '/profile', exact: false },
-    { icon: '⚡', label: 'Settings', route: '/settings', exact: false },
+    { icon: '👥', label: 'Users', route: '/admin', exact: false },
+    { icon: '📧', label: 'Email Templates', route: '/email-templates', exact: false },
   ];
+
+  visibleMenuItems = computed(() => this.isAdmin() ? this.adminMenuItems : this.userMenuItems);
 }

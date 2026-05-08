@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -53,7 +53,7 @@ import { NotificationDropdownComponent } from '../notification-dropdown/notifica
           <span class="logo-text">CampusL&F</span>
           <button class="close-btn" (click)="mobileMenuOpen.set(false)">✕</button>
         </div>
-        <a *ngFor="let item of mobileMenuItems" [routerLink]="item.route" routerLinkActive="active"
+        <a *ngFor="let item of visibleMobileItems()" [routerLink]="item.route" routerLinkActive="active"
            class="mobile-nav-item" (click)="mobileMenuOpen.set(false)">
           <span>{{item.icon}}</span> {{item.label}}
         </a>
@@ -156,16 +156,31 @@ export class NavbarComponent {
   showUserMenu = signal(false);
   mobileMenuOpen = signal(false);
 
-  mobileMenuItems = [
+  private isAdmin = computed(() => this.auth.currentUser()?.role === 'admin');
+
+  private userMobileItems = [
+    { icon: '📊', label: 'Dashboard', route: '/dashboard' },
+    { icon: '🔍', label: 'Lost Items', route: '/lost-items' },
+    { icon: '📦', label: 'Found Items', route: '/found-items' },
+    { icon: '📋', label: 'My Claims', route: '/claims' },
+    { icon: '👤', label: 'Profile', route: '/profile' },
+    { icon: '⚙️', label: 'Settings', route: '/settings' },
+  ];
+
+  private adminMobileItems = [
     { icon: '📊', label: 'Dashboard', route: '/dashboard' },
     { icon: '🔍', label: 'Lost Items', route: '/lost-items' },
     { icon: '📦', label: 'Found Items', route: '/found-items' },
     { icon: '🔗', label: 'Matching', route: '/matching' },
-    { icon: '📋', label: 'Claims', route: '/claims' },
+    { icon: '📋', label: 'All Claims', route: '/claims' },
     { icon: '🔔', label: 'Notifications', route: '/notifications' },
+    { icon: '👥', label: 'Users', route: '/admin' },
+    { icon: '📧', label: 'Email Templates', route: '/email-templates' },
     { icon: '👤', label: 'Profile', route: '/profile' },
     { icon: '⚙️', label: 'Settings', route: '/settings' },
   ];
+
+  visibleMobileItems = computed(() => this.isAdmin() ? this.adminMobileItems : this.userMobileItems);
 
   logout() {
     this.auth.logout();

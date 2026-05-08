@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClaimService } from '../../core/services/claim.service';
@@ -17,14 +17,14 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     <div class="claims animate-fade">
       <div class="page-header">
         <div>
-          <h1>Claims</h1>
-          <p>Manage your item claims and track their status.</p>
+          <h1>{{isAdmin() ? 'All Claims' : 'My Claims'}}</h1>
+          <p>{{isAdmin() ? 'Review and manage all claim requests.' : 'Track your claim requests and their status.'}}</p>
         </div>
-        <button class="btn btn-primary" (click)="showClaimModal.set(true)">+ New Claim</button>
+        <button class="btn btn-primary" *ngIf="!isAdmin()" (click)="showClaimModal.set(true)">+ New Claim</button>
       </div>
 
-      <div class="claims-list" *ngIf="claimService.claims().length > 0">
-        <div *ngFor="let claim of claimService.claims()" class="claim-card card">
+      <div class="claims-list" *ngIf="visibleClaims().length > 0">
+        <div *ngFor="let claim of visibleClaims()" class="claim-card card">
           <div class="claim-header">
             <div>
               <h3>{{claim.itemName}}</h3>
@@ -49,7 +49,9 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
         </div>
       </div>
 
-      <app-empty-state *ngIf="claimService.claims().length === 0" icon="📋" title="No claims yet" message="Submit a claim for a found item to get started." />
+      <app-empty-state *ngIf="visibleClaims().length === 0" icon="📋"
+        [title]="isAdmin() ? 'No claims yet' : 'No claims yet'"
+        [message]="isAdmin() ? 'No claims have been submitted by users.' : 'Browse Found Items and submit a claim for items that belong to you.'" />
 
       <!-- New Claim Modal -->
       <app-modal *ngIf="showClaimModal()" title="Submit a Claim" (close)="showClaimModal.set(false)" maxWidth="560px">
@@ -98,6 +100,14 @@ export class ClaimsComponent {
   itemService = inject(ItemService);
   auth = inject(AuthService);
   private toast = inject(ToastService);
+
+  isAdmin = computed(() => this.auth.currentUser()?.role === 'admin');
+
+  visibleClaims = computed(() => {
+    if (this.isAdmin()) return this.claimService.claims();
+    const uid = this.auth.currentUser()?.id;
+    return this.claimService.claims().filter(c => c.claimantId === uid);
+  });
 
   showClaimModal = signal(false);
   newClaim: any = { itemId: '', itemName: '', description: '', proofDescription: '' };
